@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Сравнение строк с использованием startsWith()</title>
+  <link href="static/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/css/mycss/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <div class="container body-div">
+    <div class="row">
+      <div class="col" style="border-right: 1px solid black">
+        <span>
+          <p> <b>Выбрать суд</b> </p>
+          <input type="text" id="inputText" value="АС города Москвы" oninput="filterOptions()">
+          <button type="button" onclick="clickSearch()"> &#128270; </button>
+          <select id="selectList"></select>
+        </span>
+
+        <br><br>
+
+        <input onclick="clickCheckBox(this)" class="checkboxType" type="checkbox" name="administrative" />
+        <span class="checkboxText">Административные</span>
+        <br>
+
+        <input onclick="clickCheckBox(this)" class="checkboxType" type="checkbox" name="civil" checked />
+        <span class="checkboxText">Гражданские</span>
+        <br>
+
+        <input onclick="clickCheckBox(this)" class="checkboxType" type="checkbox" name="bankruptcy" />
+        <span class="checkboxText">Банкротные</span>
+
+        <hr>
+
+        <p><b>Дата регистрации дела</b></p>
+        с <input type="date" id="startDate" name="trip-start" style="margin-right: 10px;" />
+        по <input type="date" id="stopDate" name="trip-start" />
+
+        <hr style="color:  gray">
+
+        <p><b>Формы собственности</b></p>
+        <div class="container">
+          <div class="row">
+            <div class="col" style="border-left: 1px solid #b0b0b0">
+              <input class="formOwnershipType" type="checkbox" name="OOO" checked />
+              <span class="OOO">ООО</span>
+              <br>
+              <input class="formOwnershipType" type="checkbox" name="ZAO" checked />
+              <span class="ZAO">ЗАО</span>
+              <br>
+              <input class="formOwnershipType" type="checkbox" name="TSJ" checked />
+              <span class="TSJ">ТСЖ</span>
+              <br>
+              <input class="formOwnershipType" type="checkbox" name="JSK" checked />
+              <span class="JSK">ЖСК</span>
+              <br>
+            </div>
+            <div class="col" style="border-left: 1px solid #b0b0b0">
+              <input class="formOwnershipType" type="checkbox" name="TD" checked />
+              <span class="TD">ТД</span>
+              <br>
+              <input class="formOwnershipType" type="checkbox" name="PAO" />
+              <span class="PAO">ПАО</span>
+              <br>
+              <input class="formOwnershipType" type="checkbox" name="OA" />
+              <span class="OA">ОА</span>
+              <br>
+              <input class="formOwnershipType" type="checkbox" name="OAO" />
+              <span class="OAO">ОАО</span>
+              <br>
+            </div>
+            <div class="col" style="border-left: 1px solid #b0b0b0">
+              <input class="formOwnershipType" type="checkbox" name="IP" />
+              <span class="IP">ИП</span>
+              <br>
+              <input class="formOwnershipType" type="checkbox" name="NAO" />
+              <span class="NAO">НАО</span>
+              <br>
+              <input class="formOwnershipType" type="checkbox" name="NKO" />
+              <span class="NKO">НКО</span>
+              <br>
+              <input class="formOwnershipType" type="checkbox" name="OSK" />
+              <span class="OSK">ОСК</span>
+              <br>
+            </div>
+          </div>
+        </div>
+        <!-- <button type="button" onclick="getFormOwnershipList()" style="margin-right: 10px;">getFormOwnershipList</button> -->
+        <!-- <button type="button" onclick="getCheckBoxType()" style="margin-right: 10px;">getCheckBoxType</button> -->
+        <!-- <button type="button" onclick="getCourt()" style="margin-right: 10px;">getCourt</button> -->
+      </div>
+      <div class="col">
+        <p><b>Минус слова в деле</b> (через запятую)</p>
+        <textarea id="minus_word" cols="35">судебный приказ, о возвращении, отказ от иска, мировое соглашение, встречный
+          иск,
+        </textarea>
+        <hr>
+        <p><b>Минимальная сумма иска</b></p>
+        <input id="min_price" style="max-width: 150px;" type="number" value="100000" /> р.
+        <hr>
+        <p><b>Источники контактов</b></p>
+        <input class="checkboxGetContact" type="checkbox" name="nalog_ru" />
+        <img class="iconLabel" src="static/icons/nalog.ru.png" alt="">
+        <span class="nalog_ru">NALOG.RU</span>
+        <br>
+        <input class="checkboxGetContact" type="checkbox" name="sbis_ru" />
+        <img class="iconLabel" src="static/icons/sbis.ru.ico" alt="">
+        <span class="sbis_ru">SBIS.RU</span>
+        <br>
+        <input class="checkboxGetContact" type="checkbox" name="vbankcenter_ru" />
+        <img class="iconLabel" src="static/icons/vbankcenter.ru.ico" alt="">
+        <span class="vbankcenter_ru">VBANKCENTER.RU</span>
+        <hr>
+
+        <button type="button" id="start" style="margin-right: 10px;">
+          Start
+        </button>
+        <button type="button" id="stop" style="margin-right: 10px;">
+          Stop
+        </button>
+        <b id="staus">Остановлен ...</b>
+        <br>
+        <br>
+        <div class="log-scroll"> </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="dist/createSelect.js"> </script>
+  <script src="dist/render.js"> </script>
+</body>
+
+</html>

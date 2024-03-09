@@ -1,0 +1,72 @@
+body {
+  margin-top: 30px;
+  font-size: 0.9em;
+  min-width: 800px;
+}
+
+.body-div {
+  min-width: 744px;
+}
+
+.log-scroll {
+  border: solid black 1px;
+  /* width: 200px; */
+  height: 75px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  padding: 5px;
+}
+
+input:hover{
+  cursor: pointer;
+
+}
+
+button:hover{
+  cursor: pointer;
+}
+
+.col-md {
+  min-width: 480px;
+}
+
+#selectList{
+  max-width: 274px; 
+  min-width: 274px;
+  /* margin-left: 20px; */
+  display: none;
+  position: absolute;
+}
+
+   /* text-decoration: line-through; */
+
+#inputText {
+  max-width: 230px; 
+  min-width: 230px;
+}
+
+.isHover:hover{
+  color: blue;
+}
+
+.lupa {
+  cursor: pointer;
+}
+
+.checkboxText {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
+.iconLabel {
+  width: 1.3em;
+}
+
+.checkboxGetContact {
+  margin-right: 4px;  
+}
+
+#staus {
+  color: blue;
+}

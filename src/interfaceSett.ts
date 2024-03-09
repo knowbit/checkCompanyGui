@@ -1,0 +1,53 @@
+export interface ICheckboxType {
+  administrative: boolean;
+  civil: boolean;
+  bankruptcy: boolean;
+}
+
+export interface IContactSources {
+  nalog_ru: boolean,
+  sbis_ru: boolean,
+  vbankcenter_ru: boolean
+}
+
+export type TFormOwnershipType =
+  'ООО' | 'ЗАО' | 'ТСЖ' | 'ЖСК' | 'ТД' | 'ПАО' | 'ОА' | 'ОАО' | 'ИП' | 'НАО' | 'НКО' | 'ОСК';
+
+export interface ISettengs {
+  boxTypeCount: ICheckboxType,
+  contactSources: IContactSources,
+  formOwnershipType: TFormOwnershipType[] | null,
+  dateList: string[] | null,
+  minusWord: string[] | null,
+  miniPrice: string | null,
+  court: string | null,
+}
+
+export interface IRawResList {
+  date: string,
+  case_number: string,
+  plaintiff: string,
+  defendant: string,
+  url: string,
+  price?: string,
+};
+
+export interface IResult {
+  "Url kad.arbitr": string;
+  "type"?: "fl" | "ul";
+  "Номер дела": string;
+  "ИНН": string;
+  "Название"?: string;
+  "ОГРН"?: string;
+  "ОГРНИП"?: string;
+  "КПП"?: string;
+  "Дата присвоения ОГРН"?: string;
+  "Дата присвоения ОГРНИП"?: string;
+  "Директор"?: string;
+  "Проверить сумму иска": "да" | "нет";
+  "Адрес"?: string;
+  "Сумма иска"?: string;
+  "Телефон"?: string;
+  "Sbisru Эл. почта"?: string;
+  "Sbisru Телефон"?: string;
+}
