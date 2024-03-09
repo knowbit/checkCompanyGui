@@ -50,4 +50,6 @@ export interface IResult {
   "Телефон"?: string;
   "Sbisru Эл. почта"?: string;
   "Sbisru Телефон"?: string;
+  "VbankCenterru Эл. почта"?: string;
+  "VbankCenterru Телефон"?: string;
 }

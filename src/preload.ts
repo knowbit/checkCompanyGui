@@ -5,6 +5,7 @@ import { Nalogru } from './parsers/nalogru/main';
 import { Sbisru } from './parsers/sbisru/main';
 import { stringify } from 'csv-stringify/sync';
 import { writeFileSync } from 'node:fs';
+import { VbankCenterru } from './parsers/vbankcenterru/main';
 
 window.addEventListener('DOMContentLoaded', () => {
   const arbitrParser = new Arbitr();
@@ -58,6 +59,15 @@ window.addEventListener('DOMContentLoaded', () => {
         }
       }
 
+      if (settengs.contactSources.vbankcenter_ru) {
+        const vbankCenterru = new VbankCenterru(addLog);
+        const result_ = await vbankCenterru.getData(result);
+        if (result_) {
+          result = result_;
+          console.log(result)
+        }
+      }
+
       const csv = createFile(result);
       writeFileSync(createFileName(), csv)
       await stopParser();
@@ -86,6 +96,12 @@ function createFile(result: IResult[]) {
   for (const res of result){
     for (const key in res) {
       if (key === 'type') {continue}
+      if (key === 'type') {continue}
+      if (key === 'ИНН') {continue}
+      if (key === 'ОГРН') {continue}
+      if (key === 'Номер дела') {continue}
+      if (key === 'Дата присвоения ОГРНИП') {continue}
+      if (key === 'Дата присвоения ОГРН') {continue}
       if (!keys.includes(key)) {
         keys.push(key);
       }
