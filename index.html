@@ -89,31 +89,35 @@
             </div>
           </div>
         </div>
-        <!-- <button type="button" onclick="getFormOwnershipList()" style="margin-right: 10px;">getFormOwnershipList</button> -->
-        <!-- <button type="button" onclick="getCheckBoxType()" style="margin-right: 10px;">getCheckBoxType</button> -->
-        <!-- <button type="button" onclick="getCourt()" style="margin-right: 10px;">getCourt</button> -->
       </div>
       <div class="col">
         <p><b>Минус слова в деле</b> (через запятую)</p>
-        <textarea id="minus_word" cols="35">судебный приказ, о возвращении, отказ от иска, мировое соглашение, встречный
-          иск,
+        <textarea id="minus_word" cols="35">судебный приказ, о возвращении, отказ от иска, мировое соглашение, встречный иск
         </textarea>
         <hr>
         <p><b>Минимальная сумма иска</b></p>
         <input id="min_price" style="max-width: 150px;" type="number" value="100000" /> р.
         <hr>
         <p><b>Источники контактов</b></p>
-        <input class="checkboxGetContact" type="checkbox" name="nalog_ru" />
+        <input class="checkboxGetContact" type="checkbox" name="nalog_ru" checked />
         <img class="iconLabel" src="static/icons/nalog.ru.png" alt="">
         <span class="nalog_ru">NALOG.RU</span>
         <br>
-        <input class="checkboxGetContact" type="checkbox" name="sbis_ru" />
+        <input class="checkboxGetContact" type="checkbox" name="sbis_ru" checked />
         <img class="iconLabel" src="static/icons/sbis.ru.ico" alt="">
         <span class="sbis_ru">SBIS.RU</span>
         <br>
-        <input class="checkboxGetContact" type="checkbox" name="vbankcenter_ru" />
+        <input class="checkboxGetContact" type="checkbox" name="vbankcenter_ru" checked />
         <img class="iconLabel" src="static/icons/vbankcenter.ru.ico" alt="">
         <span class="vbankcenter_ru">VBANKCENTER.RU</span>
+        <!-- <br> -->
+        <!-- <input class="checkboxGetContact" type="checkbox" name="zachestnyibiznes_ru" checked /> -->
+        <!-- <img class="iconLabel" src="static/icons/zachestnyibiznes.png" alt=""> -->
+        <!-- <span class="zachestnyibiznes_ru">ZACHESTNYIBIZNES.RU</span> -->
+        <br>
+        <input class="checkboxGetContact" type="checkbox" name="companium_ru" checked />
+        <img class="iconLabel" src="static/icons/companium.ru.png" alt="">
+        <span class="companium_ru">COMPANIUM.RU</span>
         <hr>
 
         <button type="button" id="start" style="margin-right: 10px;">

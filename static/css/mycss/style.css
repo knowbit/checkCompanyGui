@@ -10,8 +10,7 @@ body {
 
 .log-scroll {
   border: solid black 1px;
-  /* width: 200px; */
-  height: 75px;
+  height: 100px;
   overflow-x: hidden;
   overflow-y: scroll;
   padding: 5px;

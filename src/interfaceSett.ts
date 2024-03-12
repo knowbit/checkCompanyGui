@@ -5,9 +5,12 @@ export interface ICheckboxType {
 }
 
 export interface IContactSources {
-  nalog_ru: boolean,
-  sbis_ru: boolean,
-  vbankcenter_ru: boolean
+  nalog_ru: boolean;
+  sbis_ru: boolean;
+  vbankcenter_ru: boolean;
+  zachestnyibiznes_ru: boolean;
+  companium_ru: boolean;
+
 }
 
 export type TFormOwnershipType =
@@ -52,4 +55,11 @@ export interface IResult {
   "Sbisru Телефон"?: string;
   "VbankCenterru Эл. почта"?: string;
   "VbankCenterru Телефон"?: string;
+  "ZachestnyiBiznesru Телефон"?: string;
+  "ZachestnyiBiznesru Эл. почта"?: string;
+  "ZachestnyiBiznesru Соц. сети"?: string;
+  "ZachestnyiBiznesru Сайт"?: string;
+  "Companiumru Телефон"?: string;
+  "Companiumru Эл. почта"?: string;
+  "Companiumru Сайт"?: string;
 }

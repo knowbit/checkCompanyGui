@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 
 import * as path from 'path';
 
@@ -17,7 +17,6 @@ function createWindow() {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, '../index.html'));
   // mainWindow.loadURL('https://kad.arbitr.ru/');
-
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
 }
@@ -41,7 +40,6 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-
     // ipcMain
     app.quit();
   }

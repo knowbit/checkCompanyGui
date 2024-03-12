@@ -3,9 +3,15 @@ import { ICheckboxType, IContactSources, TFormOwnershipType, ISettengs, IResult 
 import { Arbitr } from './parsers/arbitr/main';
 import { Nalogru } from './parsers/nalogru/main';
 import { Sbisru } from './parsers/sbisru/main';
+import { VbankCenterru } from './parsers/vbankcenterru/main';
+import { ZachestnyiBiznesru } from './parsers/zachestnyibiznesru/main';
+import { Companiumru } from './parsers/companiumru/main';
 import { stringify } from 'csv-stringify/sync';
 import { writeFileSync } from 'node:fs';
-import { VbankCenterru } from './parsers/vbankcenterru/main';
+
+import { result } from './parsers/nalogru/obj';
+
+let Result = result;
 
 window.addEventListener('DOMContentLoaded', () => {
   const arbitrParser = new Arbitr();
@@ -40,21 +46,23 @@ window.addEventListener('DOMContentLoaded', () => {
     console.log(JSON.stringify(settengs))
 
     try {
-      let result = await arbitrParser.prarser(settengs, addLog);
-      if (settengs.contactSources.nalog_ru) {
-        const nalogru = new Nalogru();
-        const result_ = await nalogru.getData(result, addLog);
-        if (result_) {
-          result = result_;
-          console.log(result)
-        }
-      }
+      // let result = await arbitrParser.prarser(settengs, addLog);
+      // if (settengs.contactSources.nalog_ru) {
+      //   const nalogru = new Nalogru();
+      //   const result_ = await nalogru.getData(result, addLog);
+      //   if (result_) {
+      //     result = result_;
+      //     console.log(result)
+      //   }
+      // }
+
+
 
       if (settengs.contactSources.sbis_ru) {
         const sbisru = new Sbisru(addLog);
         const result_ = await sbisru.getData(result);
         if (result_) {
-          result = result_;
+          Result = result_;
           console.log(result)
         }
       }
@@ -63,12 +71,31 @@ window.addEventListener('DOMContentLoaded', () => {
         const vbankCenterru = new VbankCenterru(addLog);
         const result_ = await vbankCenterru.getData(result);
         if (result_) {
-          result = result_;
+          Result = result_;
           console.log(result)
         }
       }
 
-      const csv = createFile(result);
+      // settengs.contactSources.zachestnyibiznes_ru = true;
+      if (settengs.contactSources.zachestnyibiznes_ru) {
+        const zachestnyiBiznesru = new ZachestnyiBiznesru(addLog);
+        const result_ = await zachestnyiBiznesru.getData(result);
+        if (result_) {
+          Result = result_;
+          console.log(result)
+        }
+      }
+
+      if (settengs.contactSources.companium_ru) {
+        const companiumru = new Companiumru(addLog);
+        const result_ = await companiumru.getData(result);
+        if (result_) {
+          Result = result_;
+          console.log(result)
+        }
+      }
+
+      const csv = createFile(Result);
       writeFileSync(createFileName(), csv)
       await stopParser();
     } catch (error) {
@@ -87,21 +114,21 @@ function createFileName() {
   let year = date_ob.getFullYear();
   let hour = date_ob.getHours();
   let minute = date_ob.getMinutes();
-  const res_date = `Company_Arbitr_${year}-${month}-${date}-${hour}-${minute}.csv`; 
-  return res_date ;
+  const res_date = `Company_Arbitr_${year}-${month}-${date}-${hour}-${minute}.csv`;
+  return res_date;
 }
 
 function createFile(result: IResult[]) {
   const keys: string[] = [];
-  for (const res of result){
+  for (const res of result) {
     for (const key in res) {
-      if (key === 'type') {continue}
-      if (key === 'type') {continue}
-      if (key === 'ИНН') {continue}
-      if (key === 'ОГРН') {continue}
-      if (key === 'Номер дела') {continue}
-      if (key === 'Дата присвоения ОГРНИП') {continue}
-      if (key === 'Дата присвоения ОГРН') {continue}
+      if (key === 'type') { continue }
+      if (key === 'type') { continue }
+      if (key === 'ИНН') { continue }
+      if (key === 'ОГРН') { continue }
+      if (key === 'Номер дела') { continue }
+      if (key === 'Дата присвоения ОГРНИП') { continue }
+      if (key === 'Дата присвоения ОГРН') { continue }
       if (!keys.includes(key)) {
         keys.push(key);
       }
@@ -111,10 +138,10 @@ function createFile(result: IResult[]) {
   let data = [];
   data.push(keys);
 
-  for (const res of result){
+  for (const res of result) {
     const line: string[] = new Array(keys.length);
     for (const key in res) {
-      if (key === 'type') {continue}
+      if (key === 'type') { continue }
       const i = keys.indexOf(key);
       line[i] = res[key as never];
     }
@@ -185,11 +212,13 @@ function getMinusWord(): string[] | null {
 }
 
 function getContactSources(): IContactSources {
-  type resultType = 'nalog_ru' | 'sbis_ru' | 'vbankcenter_ru';
+  type resultType = 'nalog_ru' | 'sbis_ru' | 'vbankcenter_ru' | 'zachestnyibiznes_ru' | 'companium_ru';
   const result = {
     nalog_ru: false,
     sbis_ru: false,
-    vbankcenter_ru: false
+    vbankcenter_ru: false,
+    zachestnyibiznes_ru: false,
+    companium_ru: false
   };
   const checkboxGetContact = document
     .getElementsByClassName('checkboxGetContact') as HTMLCollectionOf<HTMLInputElement>;

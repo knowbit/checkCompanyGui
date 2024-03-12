@@ -5,7 +5,7 @@ import { parse as parseHtml } from 'node-html-parser';
 
 export class Sbisru {
   log: Function;
-  constructor( log: Function ) {
+  constructor(log: Function) {
     this.log = log;
   }
 
@@ -22,7 +22,7 @@ export class Sbisru {
         } catch (error) {
           try {
             console.log('Sbisru >>>>>>>>>>>..');
-            await waitFor(4000);
+            await waitFor(2000);
             await this.parseUrl(res);
           } catch { continue }
         }
@@ -70,7 +70,7 @@ export class Sbisru {
       let mail = '';
       if (mail_) {
         if (mail_.getAttribute('title')) {
-        mail = mail_.getAttribute('title') as string;
+          mail = mail_.getAttribute('title') as string;
         }
       }
 
