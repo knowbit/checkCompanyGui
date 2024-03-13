@@ -15,7 +15,7 @@ function createWindow() {
   });
 
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, '../index.html'));
+  mainWindow.loadFile(path.join(__dirname, '../static/index.html'));
   // mainWindow.loadURL('https://kad.arbitr.ru/');
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();

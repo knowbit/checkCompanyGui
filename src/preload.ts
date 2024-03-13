@@ -56,8 +56,6 @@ window.addEventListener('DOMContentLoaded', () => {
       //   }
       // }
 
-
-
       if (settengs.contactSources.sbis_ru) {
         const sbisru = new Sbisru(addLog);
         const result_ = await sbisru.getData(result);
@@ -76,7 +74,6 @@ window.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // settengs.contactSources.zachestnyibiznes_ru = true;
       if (settengs.contactSources.zachestnyibiznes_ru) {
         const zachestnyiBiznesru = new ZachestnyiBiznesru(addLog);
         const result_ = await zachestnyiBiznesru.getData(result);

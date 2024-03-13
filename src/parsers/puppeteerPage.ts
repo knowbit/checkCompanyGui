@@ -52,9 +52,9 @@ export class PuppeteerPage {
     }
   }
 
-  async init(options?: {headless: boolean} ): Promise<void> {
+  async init(options?: { headless: boolean }): Promise<void> {
     try {
-      const headless = options === undefined? false: options.headless;
+      const headless = options === undefined ? false : options.headless;
       puppeteer.use(StealthPlugin())
       const args = puppeteer.defaultArgs().filter(elem => {
         return ![
@@ -74,11 +74,18 @@ export class PuppeteerPage {
         // userDataDir: '../../session',
         // args: args,
         executablePath: '../chrome/chrome',
+        args: [
+          '--proxy'
+        ]
         // executablePath: `C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe`
         // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
         // executablePath: './chrome-mac/Chromium.app/Contents/MacOS/Chromium'
       });
       this._page = await this._browser.newPage();
+      await this._page.authenticate({
+        username: '',
+        password: '',
+      })
       await this.page.setCacheEnabled(false);
     } catch (error) {
       console.log('puppeteer init')

@@ -10,7 +10,7 @@ body {
 
 .log-scroll {
   border: solid black 1px;
-  height: 100px;
+  height: 105px;
   overflow-x: hidden;
   overflow-y: scroll;
   padding: 5px;
@@ -18,8 +18,7 @@ body {
 
 input:hover{
   cursor: pointer;
-
-}
+ }
 
 button:hover{
   cursor: pointer;
