@@ -1,36 +1,44 @@
-// import { BrowserWindow, dialog, Result, SaveDialogOptions } from 'electron';
-import { ICheckboxType, IContactSources, TFormOwnershipType, ISettengs, IResult } from './interfaceSett';
+import { ICheckboxType, IContactSources, TFormOwnershipType, ISettengs, IResult, TProxy } from './interfaceSett';
 import { Arbitr } from './parsers/arbitr/main';
 import { Nalogru } from './parsers/nalogru/main';
 import { Sbisru } from './parsers/sbisru/main';
 import { VbankCenterru } from './parsers/vbankcenterru/main';
-import { ZachestnyiBiznesru } from './parsers/zachestnyibiznesru/main';
 import { Companiumru } from './parsers/companiumru/main';
 import { stringify } from 'csv-stringify/sync';
 import { writeFileSync } from 'node:fs';
+import { PuppeteerPage } from './parsers/puppeteerPage';
+import { PageFetch, ProxyRefresh } from './parsers/moduls';
 
-import { result } from './parsers/nalogru/obj';
+import { result__ } from './parsers/nalogru/obj';
+import { checkProxy } from './checkProxy';
+let result = result__;
 
-let Result = result;
 
 window.addEventListener('DOMContentLoaded', () => {
-  const arbitrParser = new Arbitr();
-  const staus = document.getElementById('staus') as HTMLElement;
-  async function stopParser() {
-    staus.innerText = 'Остановлен ...';
-    await arbitrParser.cloceBrowser();
-  }
 
-  const stop = document.getElementById('stop');
-  stop?.addEventListener('click', async () => {
-    await stopParser();
+  const check_ip = document.getElementById('check_ip');
+  check_ip?.addEventListener('click', () => {
+    const proxy = getProxy();
+    checkProxy(proxy)
+      .then(mess => {
+        alert(mess);
+      })
+      .catch(error => {
+        console.log(error)
+      })
   })
 
+  const stop = document.getElementById('stop');
+  const staus = document.getElementById('staus') as HTMLElement;
   const start = document.getElementById('start');
 
+  let isCloseParsers: boolean;
+
   start?.addEventListener('click', async () => {
+
     if (staus.innerText === 'Остановлен ...') {
       staus.innerText = 'Работает ...';
+      isCloseParsers = true;
     } else { return }
 
     const settengs: ISettengs = {
@@ -41,58 +49,83 @@ window.addEventListener('DOMContentLoaded', () => {
       minusWord: getMinusWord(),
       court: getCourt(),
       formOwnershipType: getFormOwnershipList(),
+      proxy: getProxy()
     }
 
-    console.log(JSON.stringify(settengs))
+    const puppeteerPage = new PuppeteerPage(settengs.proxy);
+    const proxyRefresh = new ProxyRefresh(settengs.proxy);
+
+    async function stopParser() {
+      staus.innerText = 'Остановлен ...';
+      await puppeteerPage.browserClose();
+      isCloseParsers = true;
+    }
 
     try {
-      // let result = await arbitrParser.prarser(settengs, addLog);
-      // if (settengs.contactSources.nalog_ru) {
-      //   const nalogru = new Nalogru();
-      //   const result_ = await nalogru.getData(result, addLog);
-      //   if (result_) {
-      //     result = result_;
-      //     console.log(result)
-      //   }
-      // }
+      stop?.addEventListener('click', async () => {
+        await stopParser();
+      })
 
-      if (settengs.contactSources.sbis_ru) {
-        const sbisru = new Sbisru(addLog);
-        const result_ = await sbisru.getData(result);
+      console.log(JSON.stringify(settengs))
+
+      await puppeteerPage.init();
+      const arbitrParser = new Arbitr(puppeteerPage, proxyRefresh);
+      let result = await arbitrParser.prarser(settengs, addLog);
+
+      await puppeteerPage.browserClose();
+
+      if (settengs.contactSources.nalog_ru && isCloseParsers) { // await puppeteerPage.init();
+        await puppeteerPage.init({ headless: true });
+        const pageFetch = new PageFetch(puppeteerPage.page)
+        const nalogru = new Nalogru(pageFetch, puppeteerPage, proxyRefresh);
+        const result_ = await nalogru.getData(result, addLog);
         if (result_) {
-          Result = result_;
-          console.log(result)
+          result = result_;
+          console.log(result);
         }
+        await puppeteerPage.browserClose();
       }
 
-      if (settengs.contactSources.vbankcenter_ru) {
-        const vbankCenterru = new VbankCenterru(addLog);
-        const result_ = await vbankCenterru.getData(result);
+      if (settengs.contactSources.sbis_ru && isCloseParsers) {
+        // await puppeteerPage.init();
+        await puppeteerPage.init({ headless: true });
+        const pageFetch = new PageFetch(puppeteerPage.page)
+        const sbisru = new Sbisru(pageFetch, puppeteerPage, proxyRefresh);
+
+        const result_ = await sbisru.getData(result, addLog);
         if (result_) {
-          Result = result_;
+          result = result_;
           console.log(result)
         }
+        await puppeteerPage.browserClose();
       }
 
-      if (settengs.contactSources.zachestnyibiznes_ru) {
-        const zachestnyiBiznesru = new ZachestnyiBiznesru(addLog);
-        const result_ = await zachestnyiBiznesru.getData(result);
+      if (settengs.contactSources.vbankcenter_ru && isCloseParsers) {
+        // await puppeteerPage.init();
+        await puppeteerPage.init({ headless: true });
+        const vbankCenterru = new VbankCenterru(puppeteerPage, proxyRefresh);
+        const result_ = await vbankCenterru.getData(result, addLog);
         if (result_) {
-          Result = result_;
+          result = result_;
           console.log(result)
         }
+        await puppeteerPage.browserClose();
       }
 
-      if (settengs.contactSources.companium_ru) {
-        const companiumru = new Companiumru(addLog);
-        const result_ = await companiumru.getData(result);
+      if (settengs.contactSources.companium_ru && isCloseParsers) {
+        // await puppeteerPage.init();
+        await puppeteerPage.init({ headless: true });
+        const pageFetch = new PageFetch(puppeteerPage.page)
+        const companiumru = new Companiumru(pageFetch, puppeteerPage, proxyRefresh);
+        const result_ = await companiumru.getData(result, addLog);
         if (result_) {
-          Result = result_;
+          result = result_;
           console.log(result)
         }
+        await puppeteerPage.browserClose();
       }
 
-      const csv = createFile(Result);
+      const csv = createFile(result);
       writeFileSync(createFileName(), csv)
       await stopParser();
     } catch (error) {
@@ -101,7 +134,49 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
   })
+
 });
+
+
+function getProxy(): TProxy {
+  const proxyHost = document.getElementById('proxyHost') as HTMLInputElement;
+  const userNamePassword = document.getElementById('userNamePassword') as HTMLInputElement;
+  const changeIp = document.getElementById('changeIp') as HTMLInputElement;
+
+  let host: string | null = null;
+  let user: string | null = null;
+  let pass: string | null = null;
+  let change: string | null = null;
+
+  const host_ = proxyHost.value;
+  if (host_) {
+    if (host_.length > 5) {
+      host = proxyHost.value.trim();
+    }
+  }
+
+  if (userNamePassword !== null) {
+    const usrPass = userNamePassword.value.split(':');
+    if (usrPass.length == 2) {
+      user = usrPass[0].trim();
+      pass = usrPass[1].trim();
+    }
+  }
+
+  if (changeIp !== null) {
+    change = changeIp.value.trim();
+  }
+
+  if (host && user && pass && change) {
+    return {
+      host: host,
+      userName: user,
+      password: pass,
+      changeIp: change,
+    };
+  }
+  return null;
+}
 
 function createFileName() {
   let ts = Date.now();
@@ -209,12 +284,11 @@ function getMinusWord(): string[] | null {
 }
 
 function getContactSources(): IContactSources {
-  type resultType = 'nalog_ru' | 'sbis_ru' | 'vbankcenter_ru' | 'zachestnyibiznes_ru' | 'companium_ru';
+  type resultType = 'nalog_ru' | 'sbis_ru' | 'vbankcenter_ru' | 'companium_ru';
   const result = {
     nalog_ru: false,
     sbis_ru: false,
     vbankcenter_ru: false,
-    zachestnyibiznes_ru: false,
     companium_ru: false
   };
   const checkboxGetContact = document

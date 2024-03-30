@@ -1,4 +1,8 @@
 import { Page } from "puppeteer";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios-https-proxy-fix";
+import { TProxy } from "../interfaceSett";
+import { PuppeteerPage } from "./puppeteerPage";
+
 
 export async function waitForSelector(page: Page, select: string, ms: number): Promise<boolean> {
   try {
@@ -20,32 +24,89 @@ export async function getPdf(page: Page) {
           result += element.textContent + ' ';
         });
         resolve(result);
-      }, 1000); // Небольшая задержка для полной загрузки PDF
+      }, 1000);
     });
   });
-  console.log(text);
-  console.log('.>>>>>>>>>>>>');
   return text
 }
 
-// export async function pageFetch(page: Page, url: string) {
-//     const res = await page.evaluate((url) => {
-//       return new Promise((resolve, reject) => {
-//         fetch('https://kad.arbitr.ru/Kad/PdfDocument/506bcb3b-a7da-41f8-8045-897a99d8f1ef/2a385123-5121-4eb1-9083-e75f438494f2/SIP-98-2023_20230214_Opredelenie.pdf')
-//           // fetch(url)
-//           .then(res => {
-//             res.text().then((t) => {
-//               resolve(t);
-//             })
-//           })
-//           .catch(error => {
-//             reject(error)
-//           })
-//       })
-//     }, url)
-//     // console.log(res)
-//     return res;
-//   }
+export class PageFetch {
+  constructor(private page: Page) { }
+  async request(url: string, option?: RequestInit): Promise<string> {
+    try {
+      const res = await this.page.evaluate((url, option) => {
+        return new Promise((resolve, reject) => {
+          fetch(url, option)
+            .then(elem => {
+              if (elem.ok) { return elem.text() }
+              throw new Error('Fetch page failed!');
+            }).then(elem => { resolve(elem) })
+            .catch(err => { reject(err) })
+        });
+      }, url, option) as string;
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  }
+}
+
+export class ProxyRefresh {
+  constructor(
+    private proxy: TProxy,
+    private ms: number = 5000) { }
+
+  async switch() {
+    try {
+      if (this.proxy !== null && this.proxy.changeIp !== null) {
+        await fetch(this.proxy.changeIp, {
+          signal: AbortSignal.timeout(this.ms)
+        })
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+}
+
+//TKa8r4:5zkard
+// const proxy: TProxy = {
+//   host: 'https://5.8.14.128:9422',
+//   userName: 'TKa8r4',
+//   password: '5zkard',
+//   changeIp: 'http://httpbin.org/ip'
+// };
+
+// (async () => {
+//   const puppeteerPage = new PuppeteerPage(proxy);
+//   await puppeteerPage.init({ 'headless': true });
+//   await puppeteerPage.goto("https://egrul.nalog.ru/");
+//   // await puppeteerPage.goto("http://httpbin.org/ip");
+//   const pageFetch = new PageFetch(puppeteerPage.page);
+//   const result = '773301001';
+
+//   const res = await pageFetch.request("https://egrul.nalog.ru/"
+//     // const res = await pageFetch.request("https://httpbin.org/ip"
+//     , {
+//       "credentials": "include",
+//       "headers": {
+//         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0",
+//         "Accept": "application/json, text/javascript, */*; q=0.01",
+//         "Accept-Language": "en-US,en;q=0.5",
+//         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+//         "X-Requested-With": "XMLHttpRequest",
+//         "Sec-Fetch-Dest": "empty",
+//         "Sec-Fetch-Mode": "cors",
+//         "Sec-Fetch-Site": "same-origin"
+//       },
+//       "referrer": "https://egrul.nalog.ru/index.html",
+//       "body": `vyp3CaptchaToken=&page=&query=${result}&region=&PreventChromeAutocomplete=`,
+//       "method": "POST",
+//       "mode": "cors"
+//     }
+//   );
+//   console.log(JSON.parse(res));
+// })()
 
 export function waitFor(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -109,3 +170,69 @@ export class TypeInput {
   }
 
 }
+
+// export class RequestData {
+//   private proxy: {
+//     host: string,
+//     port: number,
+//     auth: {
+//       username: string,
+//       password: string
+//     }
+//   } | undefined = undefined;
+
+//   constructor(public proxy_: TProxy) {
+//     if (proxy_ === null) { return }
+//     this.proxy = {
+//       host: proxy_.host,
+//       port: proxy_.port,
+//       auth: {
+//         username: proxy_.userName,
+//         password: proxy_.password
+//       }
+//     }
+//   }
+
+//   async fetch(
+//     url: string,
+//     option: AxiosRequestConfig = { method: 'get' }
+//   ): Promise<AxiosResponse<any>> {
+//     try {
+//       option.proxy = this.proxy;
+//       const res = await axios(url, option);
+//       // console.log(typeof res.data)
+//       return res;
+//     } catch (error) {
+//       throw error;
+//     }
+//   }
+
+//   async refreshProxy(waitMs: number) {
+//     try {
+//       if (this.proxy_ === null) { return }
+//       await fetch(this.proxy_.changeIp, {
+//         signal: AbortSignal.timeout(waitMs)
+//       });
+//     } catch (error) {
+//       throw error;
+//     }
+//   }
+// }
+
+// const proxy: TProxy = {
+//   port: 9422,
+//   host: '5.8.14.128',
+//   userName: 'TKa8r4',
+//   password: '5zkArD',
+//   changeIp: 'http://httpbin.org/ip'
+// }
+
+// const requestData = new RequestData(proxy);
+
+// (async () => {
+//   const html = await requestData.fetch('http://httpbin.org/ip');
+//   console.log(html)
+// })();
+
+// requestData.fetch('http://httpbin.org/ip');
+

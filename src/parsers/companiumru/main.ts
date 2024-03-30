@@ -1,19 +1,24 @@
 import { IResult } from '../../interfaceSett';
-import { waitFor } from '../moduls';
+import { PageFetch, ProxyRefresh, waitFor } from '../moduls';
 import { parse as parseHtml } from 'node-html-parser';
+import { PuppeteerPage } from '../puppeteerPage';
 
 
 export class Companiumru {
-  log: Function;
-  constructor(log: Function) {
-    this.log = log;
-  }
+  constructor(
+    private pageFetch: PageFetch,
+    private puppeteerPage: PuppeteerPage,
+    private proxyRefresh: ProxyRefresh
+  ) { }
 
-  async getData(result_: IResult[]) {
-    this.log('Парсинг companium.ru ...');
+  async getData(result_: IResult[], log: Function) {
+    log('Парсинг companium.ru ...');
+
     const result: IResult[] = Object.assign([], result_);
     let i = 0;
     try {
+      await this.puppeteerPage.goto('https://companium.ru');
+
       for (let res of result) {
         try {
           await this.parseUrl(res);
@@ -22,15 +27,19 @@ export class Companiumru {
         } catch (error) {
           try {
             console.log('companium.ru >>>>>>>>>>>..');
+            await this.proxyRefresh.switch();
+            await this.puppeteerPage.browserClose();
+            await this.puppeteerPage.init();
+            await this.puppeteerPage.goto('https://companium.ru')
             await waitFor(2000);
             await this.parseUrl(res);
           } catch { continue }
         }
       }
-      this.log('Парсинг companium.ru готов ...');
+      log('Парсинг companium.ru готов ...');
       return result;
     } catch (error) {
-      this.log('Парсинг companium.ru закончился неудачей ...');
+      log('Парсинг companium.ru закончился неудачей ...');
       throw error;
     }
   }
@@ -41,7 +50,7 @@ export class Companiumru {
         return;
       }
 
-      const response = await fetch(`https://companium.ru/id/${result['ОГРН']}/contacts`, {
+      const response = await this.pageFetch.request(`https://companium.ru/id/${result['ОГРН']}/contacts`, {
         "credentials": "include",
         "headers": {
           "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0",
@@ -58,9 +67,7 @@ export class Companiumru {
         "mode": "cors"
       });
 
-      if (response.status !== 200) { throw 'Status not 200' }
-
-      const html = parseHtml(await response.text());
+      const html = parseHtml(response);
       const blcock_phone = html.querySelector('div.col-lg-4:nth-child(1)');
       const phone: string[] = [];
       if (blcock_phone) {
@@ -89,7 +96,6 @@ export class Companiumru {
       result['Companiumru Сайт'] = site.join('; ');
       console.log(result)
     } catch (error) {
-      this.log('Парсинг companium.ru закончился неудачей ...');
       throw error;
     }
   }

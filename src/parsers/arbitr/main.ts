@@ -1,34 +1,22 @@
-import { IRawResList, IResult, ISettengs } from "../../interfaceSett";
-import { waitFor } from "../moduls";
+import { IRawResList, IResult, ISettengs, TProxy } from "../../interfaceSett";
+import { ProxyRefresh, waitFor } from "../moduls";
 import { PuppeteerPage } from "../puppeteerPage";
 import { ParseArbitr } from "./parseArbitr";
-
 import { parse as parseHtml } from 'node-html-parser';
-// import { constrainedMemory } from "node:process";
 import { CreateRsult } from "./createResult";
 
 export class Arbitr {
-  private puppeteerPage = new PuppeteerPage();
-
-  async cloceBrowser() {
-    try {
-      const pages = await this.puppeteerPage.browser.pages();
-      for (const page of pages) { page.close() }
-      await this.puppeteerPage.browser.close();
-      try {
-        this.puppeteerPage.BrowserToNull();
-      } catch (error) { }
-    } catch (error) {
-      throw error;
-    }
-  }
+  constructor(
+    private puppeteerPage: PuppeteerPage,
+    private proxyRefresh: ProxyRefresh
+  ) { }
 
   async prarser(setting: ISettengs, log: Function) {
     try {
-      log('Парсинг kad.arbitr.ru ...');
-      await this.puppeteerPage.init();
       const isAlertSel = '#js > div.b-promo_notification.b-promo_notification--without_link > div.b-promo_notification-popup_wrapper > div > div > div > div > a.b-promo_notification-popup-close.js-promo_notification-popup-close';
       await this.puppeteerPage.goto('https://kad.arbitr.ru/');
+
+      log('Парсинг kad.arbitr.ru ...');
       let parseArbitr = new ParseArbitr(this.puppeteerPage.page, setting);
       await waitFor(500);
       const isNH = await this.puppeteerPage.page.content();
@@ -47,15 +35,15 @@ export class Arbitr {
       let browserRestart = 0;
 
       log(`Обработка найденых ссылок ...`);
-      for (let i = 0; i < rawResutUrls.length; i++) {
-      // for (let i = 0; i < 10; i++) {
-        // log(`Обработка ссылки ${String(i + 1)} ...`);
+      // for (let i = 0; i < rawResutUrls.length; i++) {
+      for (let i = 0; i < 10; i++) {
         let err = 0;
         while (true) {
           try {
             if (browserRestart++ > 34) {
-              await this.cloceBrowser();
-              await this.puppeteerPage.init();
+              await this.puppeteerPage.browserClose();
+              await this.proxyRefresh.switch();
+              await this.puppeteerPage.init({ headless: true });
               parseArbitr = new ParseArbitr(this.puppeteerPage.page, setting);
               await waitFor(3000);
               browserRestart = 0;
@@ -78,13 +66,13 @@ export class Arbitr {
             console.log('^^^^^^^^^^^^^^^');
             if (err++ > 9) {
               try {
-                await this.cloceBrowser();
+                await this.puppeteerPage.browserClose();
               } catch { }
               console.log('process.exit() &&&&&&&&&&&&&&&&&&&&')
-              await this.puppeteerPage.init();
+              await this.proxyRefresh.switch();
+              await this.puppeteerPage.init({ headless: true });
               parseArbitr = new ParseArbitr(this.puppeteerPage.page, setting);
               await waitFor(9000);
-              // process.exit()
             }
           }
         }
@@ -93,11 +81,10 @@ export class Arbitr {
       const resultCompany: IResult[] = createResult.result;
       console.log(resultCompany);
       console.log(resultCompany.length, ' Result Urls !!!');
-
       log(`Парсинг kad.arbitr.ru завершён. \n Найдено ${resultCompany.length} шт.  ...`);
-      await this.cloceBrowser();
       return resultCompany;
     } catch (error) {
+      console.log(error)
       throw error;
     }
   }

@@ -90,14 +90,29 @@
         </div>
 
         <hr>
-        <p><b>Данные прокси</b></p>
-        <input type="text" id="proxyHost" size="25" style="margin-bottom: 4px;" placeholder="http://127.0.0.1:80">
-        <input type="text" id="userNamePassword" size="25" placeholder="username:password">
 
+        <p><b>Данные прокси</b> <button style="margin-left: 29px;" id="check_ip">Проверить
+            прокси</button></p>
+        <div class="container">
+          <div class="row">
+            <div class="col-16">
+              <div style="margin-bottom: 10px;">Host:</div>
+              <div style="margin-bottom: 8px;">Auch:</div>
+              <div>Change ip: </div>
+            </div>
+            <div class="col">
+              <input type="text" id="proxyHost" size="25" placeholder="http://127.0.0.1:80">
+              <input type="text" id="userNamePassword" size="25" placeholder="username:password">
+              <input type="text" id="changeIp" size="25" placeholder="https://8.8.8.8/xxx?a=b">
+            </div>
+          </div>
+        </div>
       </div>
+
       <div class="col">
         <p><b>Минус слова в деле</b> (через запятую)</p>
-        <textarea id="minus_word" cols="35">судебный приказ, о возвращении, отказ от иска, мировое соглашение, встречный
+        <textarea id="minus_word" cols="35">судебный приказ, о возвращении, отказ от иска, мировое соглашение,
+          встречный
           иск
         </textarea>
         <hr>

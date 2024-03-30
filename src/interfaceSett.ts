@@ -8,7 +8,6 @@ export interface IContactSources {
   nalog_ru: boolean;
   sbis_ru: boolean;
   vbankcenter_ru: boolean;
-  zachestnyibiznes_ru: boolean;
   companium_ru: boolean;
 
 }
@@ -16,14 +15,22 @@ export interface IContactSources {
 export type TFormOwnershipType =
   'ООО' | 'ЗАО' | 'ТСЖ' | 'ЖСК' | 'ТД' | 'ПАО' | 'ОА' | 'ОАО' | 'ИП' | 'НАО' | 'НКО' | 'ОСК';
 
+export type TProxy = {
+  host: string;
+  userName: string;
+  password: string;
+  changeIp: string;
+} | null
+
 export interface ISettengs {
-  boxTypeCount: ICheckboxType,
-  contactSources: IContactSources,
-  formOwnershipType: TFormOwnershipType[] | null,
-  dateList: string[] | null,
-  minusWord: string[] | null,
-  miniPrice: string | null,
-  court: string | null,
+  boxTypeCount: ICheckboxType;
+  contactSources: IContactSources;
+  formOwnershipType: TFormOwnershipType[] | null;
+  dateList: string[] | null;
+  minusWord: string[] | null;
+  miniPrice: string | null;
+  court: string | null;
+  proxy: TProxy | null;
 }
 
 export interface IRawResList {

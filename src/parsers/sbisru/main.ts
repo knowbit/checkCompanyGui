@@ -1,36 +1,46 @@
 import { IResult } from '../../interfaceSett';
-import { waitFor } from '../moduls';
+import { PageFetch, ProxyRefresh, waitFor } from '../moduls';
 import { parse as parseHtml } from 'node-html-parser';
+import { PuppeteerPage } from '../puppeteerPage';
 
 
 export class Sbisru {
-  log: Function;
-  constructor(log: Function) {
-    this.log = log;
+  constructor(
+    private pageFetch: PageFetch,
+    private puppeteerPage: PuppeteerPage,
+    private proxyRefresh: ProxyRefresh
+  ) {
   }
 
-  async getData(result_: IResult[]) {
-    this.log('Парсинг sbis.ru ...');
+  async getData(result_: IResult[], log: Function) {
+    log('Парсинг sbis.ru ...');
     const result: IResult[] = Object.assign([], result_);
     let i = 0;
     try {
+      await this.puppeteerPage.goto('https://sbis.ru/');
+
       for (let res of result) {
         try {
           await this.parseUrl(res);
+
           console.log(i++, '-------------------------------------');
           await waitFor(2000);
         } catch (error) {
           try {
+            await this.proxyRefresh.switch();
+            await this.puppeteerPage.browserClose();
+            await this.puppeteerPage.init();
+            await this.puppeteerPage.goto('https://sbis.ru/');
             console.log('Sbisru >>>>>>>>>>>..');
             await waitFor(2000);
             await this.parseUrl(res);
           } catch { continue }
         }
       }
-      this.log('Парсинг sbis.ru готов ...');
+      log('Парсинг sbis.ru готов ...');
       return result;
     } catch (error) {
-      this.log('Парсинг sbis.ru закончился неудачей ...');
+      log('Парсинг sbis.ru закончился неудачей ...');
       throw error;
     }
   }
@@ -38,8 +48,7 @@ export class Sbisru {
   async parseUrl(result: IResult) {
     try {
       const kpp = result['КПП'] ? `/${result['КПП']}` : '';
-
-      const response = await fetch(`https://sbis.ru/contragents/${result['ИНН']}${kpp}`, {
+      const response = await this.pageFetch.request(`https://sbis.ru/contragents/${result['ИНН']}${kpp}`, {
         "credentials": "include",
         "headers": {
           "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:122.0) Gecko/20100101 Firefox/122.0",
@@ -54,10 +63,8 @@ export class Sbisru {
         "method": "GET",
         "mode": "cors"
       });
-      if (response.status !== 200) { throw 'Status not 200' }
-      const html = parseHtml(await response.text());
 
-      // const html = parseHtml(await response.text());
+      const html = parseHtml(response);
 
       let phone_ = html.querySelector('div.cCard__Contacts-Value.ws-ellipsis');
       let phone = '';
@@ -82,7 +89,6 @@ export class Sbisru {
 
       console.log(result);
     } catch (error) {
-      this.log('Парсинг sbis.ru закончился неудачей ...');
       throw error;
     }
   }

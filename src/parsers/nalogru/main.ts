@@ -1,23 +1,21 @@
 import { parse as parseHtml } from 'node-html-parser';
-import { IResult } from '../../interfaceSett';
-import { waitFor } from '../moduls';
-// import { IResList } from '../arbitr/parseArbitr';
-
-// const inn = {
-//   date: '15.06.2022',
-//   case_number: 'А41-43501/2022',
-//   plaintiff: '"Фонд Капитального ремонта общего имущества многоквартирных домов"\n' +
-//     'ИНН: 7701169833 ',
-//   defendant: 'ООО "ГАЛЕРЕЯ МОЛОКОВО"\nИНН: 5024138783 ',
-//   url: 'https://kad.arbitr.ru/Card/395abf9a-d892-44dc-aa19-43083171a433',
-//   price: '274129.95'
-// }
+import { IResult, TProxy } from '../../interfaceSett';
+import { PageFetch, ProxyRefresh, waitFor } from '../moduls';
+import { PuppeteerPage } from '../puppeteerPage';
 
 export class Nalogru {
+  constructor(
+    private pageFetch: PageFetch,
+    private puppeteerPage: PuppeteerPage,
+    private proxyRefresh: ProxyRefresh
+  ) { }
+
   async getData(result_: IResult[], log: Function) {
     log('Парсинг egrul.nalog.ru ...');
     const result = Object.assign([], result_);
     try {
+      await this.puppeteerPage.goto('https://egrul.nalog.ru/')
+
       for (let res of result) {
         try {
           await this.parseUrl(res);
@@ -25,6 +23,10 @@ export class Nalogru {
           await waitFor(2000);
         } catch (error) {
           try {
+            await this.proxyRefresh.switch();
+            await this.puppeteerPage.browserClose();
+            await this.puppeteerPage.init();
+            await this.puppeteerPage.goto('https://egrul.nalog.ru/')
             console.log('Nalog >>>>>>>>>>>..');
             await waitFor(4000);
             await this.parseUrl(res);
@@ -41,7 +43,7 @@ export class Nalogru {
 
   private async parseUrl(result: IResult): Promise<void> {
     try {
-      const restmp = await fetch("https://egrul.nalog.ru/", {
+      const restmp = await this.pageFetch.request("https://egrul.nalog.ru/", {
         "credentials": "include",
         "headers": {
           "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0",
@@ -59,13 +61,13 @@ export class Nalogru {
         "mode": "cors"
       });
 
-      if (restmp.status !== 200) { throw new Error('Status not 200') }
+      const tokenJson = JSON.parse(restmp);
 
-      const tokenJson = await restmp.json();
       if (tokenJson.captchaRequired === false) {
         const time = (new Date()).getTime();
         let url = `https://egrul.nalog.ru/search-result/${tokenJson.t}?r=${time}&_=${time + 1}`;
-        const response = await fetch(url, {
+
+        const response = await this.pageFetch.request(url, {
           "credentials": "include",
           "headers": {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0",
@@ -81,8 +83,10 @@ export class Nalogru {
           "mode": "cors"
         });
 
-        if (response.status !== 200) { throw new Error('Status not 200') }
-        const data = await response.json();
+        const data = JSON.parse(response);
+
+        console.log(data)
+
         const rows = data.rows[0];
         if (rows.k === 'ul') {
           result['type'] = 'ul';
@@ -119,11 +123,20 @@ export class Nalogru {
 //   'Сумма иска': "201800",
 // }];
 
-// import { result } from './obj';
+// const proxy: TProxy = {
+//   host: 'http://5.8.14.128:9422',
+//   userName: 'TKa8r4',
+//   password: '5zkArD',
+//   changeIp: 'http://httpbin.org/ip'
+// };
+
+// // import { result } from './obj';
+
 // (async () => {
 //   function log(text: string) {
 //     console.log(text)
 //   }
-//   const nalogru = new Nalogru();
+//   const nalogru = new Nalogru(proxy);
 //   const res = await nalogru.getData(result, log);
+//   console.log(res)
 // })()

@@ -1,20 +1,18 @@
 import { IResult } from '../../interfaceSett';
-import { waitFor } from '../moduls';
+import { PageFetch, ProxyRefresh, waitFor } from '../moduls';
 import { parse as parseHtml } from 'node-html-parser';
 import { PuppeteerPage } from "../puppeteerPage";
 
 
 export class VbankCenterru {
-  puppeteerPage = new PuppeteerPage();
-  log: Function;
-  constructor(log: Function) {
-    this.log = log;
-  }
+  constructor(
+    private puppeteerPage: PuppeteerPage,
+    private proxyRefresh: ProxyRefresh
+  ) { }
 
-  async getData(result_: IResult[]) {
+  async getData(result_: IResult[], log: Function) {
     try {
-      this.log('Парсинг vbankcenter.ru ...');
-      await this.puppeteerPage.init({ headless: false });
+      log('Парсинг vbankcenter.ru ...');
       const result: IResult[] = Object.assign([], result_);
       let i = 0;
       for (let res of result) {
@@ -24,18 +22,21 @@ export class VbankCenterru {
           console.log(i++, '-------------------------------------');
         } catch (error) {
           try {
+            await this.proxyRefresh.switch();
+            await this.puppeteerPage.browserClose();
+            await this.puppeteerPage.init();
             console.log('vbankcenter.ru >>>>>>>>>>>..');
             await waitFor(4000);
             await this.parseUrl(res);
           } catch { continue }
         }
       }
-      this.log('Парсинг vbankcenter.ru готов ...');
+      log('Парсинг vbankcenter.ru готов ...');
       await this.puppeteerPage.browserClose();
       return result;
     } catch (error) {
       await this.puppeteerPage.browserClose();
-      this.log('Парсинг vbankcenter.ru закончился неудачей ...');
+      log('Парсинг vbankcenter.ru закончился неудачей ...');
       throw error;
     }
   }

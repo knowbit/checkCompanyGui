@@ -1,12 +1,13 @@
-import { IResult } from '../../interfaceSett';
+import { IResult, TProxy } from '../../interfaceSett';
 import { waitFor } from '../moduls';
 import { parse as parseHtml } from 'node-html-parser';
 import { PuppeteerPage } from "../puppeteerPage";
 
 export class ZachestnyiBiznesru {
-  puppeteerPage = new PuppeteerPage();
+  puppeteerPage: PuppeteerPage;
   log: Function;
-  constructor(log: Function) {
+  constructor(log: Function, proxy: TProxy) {
+    this.puppeteerPage = new PuppeteerPage(proxy);
     this.log = log;
   }
 
@@ -110,7 +111,7 @@ export class ZachestnyiBiznesru {
   }
 }
 
-import { result } from '../nalogru/obj';
+// import { result } from '../nalogru/obj';
 
 // (async () => {
 //   function log(text: string) {
